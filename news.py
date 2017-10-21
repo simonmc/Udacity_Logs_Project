@@ -5,17 +5,16 @@
 Created on Fri Oct 20 19:53:23 2017
 
 @author: simonmcmillan
+
+with thanks to Anon @ Udacity Reviewer for guidance on avoiding code repetition
 """
 
+import sys
 import psycopg2
 
 DBNAME = "news"
 
-
-def popular_titles():
-    db = psycopg2.connect(database=DBNAME)
-    c = db.cursor()
-    query = """
+article_query = """
     select a.title, count(*)
     from articles as a
     join newlog as nl on (a.slug=nl.shortpath)
@@ -23,16 +22,8 @@ def popular_titles():
     group by a.title
     order by count(*) desc limit 3;
     """
-    c.execute(query)
-    titles = c.fetchall()
-    db.close()
-    return titles
 
-
-def author_count():
-    db = psycopg2.connect(database=DBNAME)
-    c = db.cursor()
-    query = """
+author_query = """
     select at.name, count(*)
     from authors as at
     join articles as ar on (at.id=ar.author)
@@ -40,42 +31,38 @@ def author_count():
     where nl.status='200 OK' group by at.name
     order by count(*) desc;
     """
-    c.execute(query)
-    authors = c.fetchall()
-    db.close()
-    return authors
 
-
-def high_error_days():
-    db = psycopg2.connect(database=DBNAME)
-    c = db.cursor()
-    query = """
-    select to_char(day, 'Month DD, YYYY')
+error_query = """
+    select to_char(day, 'DD-MON-YYYY'),
+    round(cast((errors*100.0/total) as decimal),2)
     from daily_errors
     where cast((errors*100.0/total) as decimal)>1;
     """
+
+def connectdb(database_name):
+    try:
+        db = psycopg2.connect("dbname={}".format(database_name))
+        c = db.cursor()
+        return db, c
+    except psycopg2.Error:
+        print "Unable to connect to database"
+        sys.exit(1)
+
+def runquery(query):
+    db, c = connectdb(DBNAME)
     c.execute(query)
-    errordays = c.fetchall()
+    queryresult = c.fetchall()
     db.close()
-    return errordays
+    return queryresult
 
+def print_results(query_type, query):
+    results = runquery(query)
+    print query_type
+    for items in results:
+        print items[0], items[1]
+    print ""
 
-Titles = popular_titles()
-Authors = author_count()
-Error_Days = high_error_days()
-
-print"Most Popular Titles"
-for items in Titles:
-    print items[0], items[1]
-
-print ""
-
-print"Authors, ranked"
-for items in Authors:
-    print items[0], items[1]
-
-print""
-
-print"Days with high error rate"
-for items in Error_Days:
-    print items[0]
+if __name__ == '__main__':
+    print_results("Top Articles", article_query)
+    print_results("Top Authors", author_query)
+    print_results("High Error Days", error_query)
