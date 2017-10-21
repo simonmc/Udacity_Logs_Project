@@ -56,22 +56,22 @@ def high_error_days():
     db.close()
     return errordays
 
-titles = popular_titles()
-authors = author_count()
-error_days = high_error_days()
+Titles = popular_titles()
+Authors = author_count()
+Error_Days = high_error_days()
 
-print("Most Popular Titles")
-for items in titles:
+print"Most Popular Titles"
+for items in Titles:
     print items[0], items[1]
 
 print ""
 
-print("Authors, ranked")
-for items in authors:
+print"Authors, ranked"
+for items in Authors:
     print items[0], items[1]
 
 print""
 
-print("Days with high error rate")
-for items in error_days:
+print"Days with high error rate"
+for items in Error_Days:
     print items[0]
