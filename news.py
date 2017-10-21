@@ -39,6 +39,7 @@ error_query = """
     where cast((errors*100.0/total) as decimal)>1;
     """
 
+
 def connectdb(database_name):
     try:
         db = psycopg2.connect("dbname={}".format(database_name))
@@ -48,6 +49,7 @@ def connectdb(database_name):
         print "Unable to connect to database"
         sys.exit(1)
 
+
 def runquery(query):
     db, c = connectdb(DBNAME)
     c.execute(query)
@@ -55,12 +57,14 @@ def runquery(query):
     db.close()
     return queryresult
 
+
 def print_results(query_type, query):
     results = runquery(query)
     print query_type
     for items in results:
         print items[0], items[1]
     print ""
+
 
 if __name__ == '__main__':
     print_results("Top Articles", article_query)
