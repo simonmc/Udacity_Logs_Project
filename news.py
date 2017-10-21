@@ -11,15 +11,16 @@ import psycopg2
 
 DBNAME = "news"
 
+
 def popular_titles():
     db = psycopg2.connect(database=DBNAME)
     c = db.cursor()
     query = """
-    select a.title, count(*) 
-    from articles as a 
-    join newlog as nl on (a.slug=nl.shortpath) 
-    where status = '200 OK' 
-    group by a.title 
+    select a.title, count(*)
+    from articles as a
+    join newlog as nl on (a.slug=nl.shortpath)
+    where status = '200 OK'
+    group by a.title
     order by count(*) desc limit 3;
     """
     c.execute(query)
@@ -27,15 +28,16 @@ def popular_titles():
     db.close()
     return titles
 
+
 def author_count():
     db = psycopg2.connect(database=DBNAME)
     c = db.cursor()
     query = """
-    select at.name, count(*) 
-    from authors as at 
-    join articles as ar on (at.id=ar.author) 
-    join newlog as nl on (nl.shortpath=ar.slug) 
-    where nl.status='200 OK' group by at.name 
+    select at.name, count(*)
+    from authors as at
+    join articles as ar on (at.id=ar.author)
+    join newlog as nl on (nl.shortpath=ar.slug)
+    where nl.status='200 OK' group by at.name
     order by count(*) desc;
     """
     c.execute(query)
@@ -43,18 +45,20 @@ def author_count():
     db.close()
     return authors
 
+
 def high_error_days():
     db = psycopg2.connect(database=DBNAME)
     c = db.cursor()
     query = """
-    select to_char(day, 'Month DD, YYYY') 
-    from daily_errors 
+    select to_char(day, 'Month DD, YYYY')
+    from daily_errors
     where cast((errors*100.0/total) as decimal)>1;
     """
     c.execute(query)
     errordays = c.fetchall()
     db.close()
     return errordays
+
 
 Titles = popular_titles()
 Authors = author_count()
