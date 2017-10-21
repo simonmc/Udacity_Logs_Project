@@ -1,7 +1,7 @@
 # Udacity_Logs_Project
 
 news.py analyses the news database and returns details about the most popular
-articles, ranks the authors and identifies days wehre the http error rate 
+articles, ranks the authors and identifies days when the http error rate 
 exceeded 1%
 
 ## Pre-requisites
